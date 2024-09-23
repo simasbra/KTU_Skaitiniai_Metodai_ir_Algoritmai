@@ -230,7 +230,10 @@ print(f"Daugianario saknys su numpy.roots(): {saknysNumpyF}")
 # funkcijos saknys naudojant scipy.optimize.fsolve()
 saknysFsolveG = []
 for saknuPora in funkcijosSaknys:
-    saknis = fsolve(funkcijaG, (saknuPora[0] + saknuPora[1]) / 2)[0]
-    saknysFsolveG.append(saknis)
-
+    saknisFsolve = fsolve(funkcijaG, (saknuPora[0] + saknuPora[1]) / 2)[0]
+    saknysFsolveG.append(saknisFsolve)
 print(f'Funkcijos saknys su scipy.optimize.fsolve: {saknysFsolveG}')
+
+# 2.1
+# Pateikite tarpinius grafikus, kai drauge su pateikta funkcija ℎ(𝑥)
+# nurodytame intervale atvaizduojama TE, kaijos narių skaičius lygus 3, 4 ir 5
