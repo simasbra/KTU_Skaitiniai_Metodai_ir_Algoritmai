@@ -191,7 +191,7 @@ pyplot.show()
 # raskite šaknų atskyrimo intervalus.
 
 print("\n1.2")
-zingsnis = 0.01
+zingsnis = 0.1
 daugianarioSaknys = skenavimas('f', galutinis, zingsnis)
 funkcijosSaknys = skenavimas('g', (-5, 5), zingsnis)
 print(f'Daugianario saknys skenavimo algoritmu: {daugianarioSaknys}')
@@ -230,7 +230,7 @@ print(f"Daugianario saknys su numpy.roots(): {saknysNumpyF}")
 # funkcijos saknys naudojant scipy.optimize.fsolve()
 saknysFsolveG = []
 for saknuPora in funkcijosSaknys:
-    x_saknis = fsolve(funkcijaG, (saknuPora[0] + saknuPora[1]) / 2)[0]
-    saknysFsolveG.append(x_saknis)
+    saknis = fsolve(funkcijaG, (saknuPora[0] + saknuPora[1]) / 2)[0]
+    saknysFsolveG.append(saknis)
 
 print(f'Funkcijos saknys su scipy.optimize.fsolve: {saknysFsolveG}')
