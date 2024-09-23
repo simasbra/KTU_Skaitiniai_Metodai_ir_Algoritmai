@@ -1,6 +1,7 @@
 import sympy
 import numpy
 import math
+import math
 import matplotlib.pyplot as pyplot
 
 
@@ -47,8 +48,24 @@ def skenavimas(funkcija, intervalas, zingsnis):
     return saknys
 
 
-def pusiaukirtosMetodas(funkcija):
-    return 0
+def pusiaukirtosMetodas(funkcija, saknys, tolerancija=1e-10, iteracijosMax=1000):
+    patikslintosSaknys = []
+    for saknuPora in saknys:
+        xFrom = saknuPora[0]
+        xTo = saknuPora[1]
+        xMid = (xFrom + xTo) / 2
+        iteration = 0
+        while (numpy.abs(funkcija(xMid)) > tolerancija):
+            iteration += 1
+            if (numpy.sign(funkcija(xMid)) == numpy.sign(funkcija(xFrom))):
+                xFrom = xMid
+            else:
+                xTo = xMid
+            xMid = (xFrom + xTo) / 2
+        patikslintosSaknys.append((xMid))
+        # print(f'Artinys ({xFrom}, {xTo})')
+        # print(f'Patikslinta saknis: {xMid} Iteracijos: {format(iteration)}')
+    return patikslintosSaknys
 
 
 koeficientai = [-0.45, 1.04, 1.42, -2.67, -0.97]
@@ -59,6 +76,7 @@ koeficientaiNeigX = [
 # Iverciai
 # Nustatykite daugianario 𝑓(𝑥)šaknų intervalą,
 # taikydami „grubų“ ir „tikslesnį“ įverčius.
+print("\n1.1")
 if koeficientai[-1] < 0:
     koeficientai = [x * (-1) for x in koeficientai]
 
@@ -107,7 +125,7 @@ plotF2.set_title(
 plotF2.set_xlabel("x")
 plotF2.set_ylabel("y")
 plotF2.plot(iverciaiF, figureF, "m")
-plotF2.set_xlim([-4, 4])
+plotF2.set_xlim([-2, 2])
 plotF2.set_ylim([-2, 2])
 plotF2.axhline(y=0, lw=1, color='k')
 plotF2.grid()
@@ -153,7 +171,8 @@ pyplot.show()
 # 1.2
 # Naudodami skenavimo algoritmą su nekintančiu skenavimo žingsniu
 # raskite šaknų atskyrimo intervalus.
-zingsnis = 0.001
+print("\n1.2")
+zingsnis = 0.01
 daugianarioSaknys = skenavimas('f', galutinis, zingsnis)
 funkcijosSaknys = skenavimas('g', (-10, 10), zingsnis)
 print(f'Daugianario saknys skenavimo algoritmu: {daugianarioSaknys}')
@@ -163,3 +182,13 @@ print(f'Funkcijos saknys skenavimo algoritmu: {funkcijosSaknys}')
 # Skenavimo metodu atskirtas daugianario ir funkcijos šaknis tikslinkite
 # užduotyje nurodytais metodais. Skaičiavimo scenarijuje turi būti
 # panaudotos skaičiavimų pabaigos sąlygos.
+print("\n1.3")
+# pusiaukirtos metodas
+pusiaukirtosF = pusiaukirtosMetodas(
+    daugianarisF, daugianarioSaknys, 1e-15, 1000)
+print(f'Daugianario saknys skenavimo algoritmu: {pusiaukirtosF}')
+
+pusiaukirtosG = pusiaukirtosMetodas(funkcijaG, funkcijosSaknys, 1e-14, 1000)
+print(f'Funkcijos saknys skenavimo algoritmu: {pusiaukirtosG}')
+
+# kvazi-niutono (kirstiniu) metodas
