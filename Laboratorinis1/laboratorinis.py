@@ -22,9 +22,33 @@ def tikslesnisIntervalas(koeficientai):
     n = len(koeficientai)
     max_abs_index, B = min(enumerate(koeficientai[:-1]), key=lambda x: x[1])
     k = n - max_abs_index
-
     R = 1 + (abs(B) / koeficientai[-1])**(1 / k)
     return round(R, 2)
+
+
+def skenavimas(funkcija, intervalas, zingsnis):
+    # pradinė x reikšmė - intervalo pradžia
+    x = intervalas[0]
+    # čia bus laikomi šaknų atskyrimo intervalai
+    saknys = []
+    # nusprendžiama, kurią funkciją naudosime (pagal funkcijos parametrą)
+    func = daugianarisF if funkcija == 'f' else funkcijaG
+    # nustatomas funkcijos ženklas intervalo pradžioje
+    dabZenklas = False if func(x) < 0 else True
+    # kol prieiname intervalo galą tikriname ženklus tarp skirtingų galų
+    # jeigu ženklai nesutampa - tame intervale bus šaknis, tad ją ir išsaugome
+    while x < intervalas[1]:
+        buvZenklas = dabZenklas
+        dabZenklas = False if func(x) < 0 else True
+
+        if buvZenklas != dabZenklas:
+            saknys.append((x-zingsnis, x))
+        x += zingsnis
+    return saknys
+
+
+def pusiaukirtosMetodas(funkcija):
+    return 0
 
 
 koeficientai = [-0.45, 1.04, 1.42, -2.67, -0.97]
@@ -125,3 +149,17 @@ plotG2.grid()
 
 pyplot.tight_layout()
 pyplot.show()
+
+# 1.2
+# Naudodami skenavimo algoritmą su nekintančiu skenavimo žingsniu
+# raskite šaknų atskyrimo intervalus.
+zingsnis = 0.001
+daugianarioSaknys = skenavimas('f', galutinis, zingsnis)
+funkcijosSaknys = skenavimas('g', (-10, 10), zingsnis)
+print(f'Daugianario saknys skenavimo algoritmu: {daugianarioSaknys}')
+print(f'Funkcijos saknys skenavimo algoritmu: {funkcijosSaknys}')
+
+# 1.3
+# Skenavimo metodu atskirtas daugianario ir funkcijos šaknis tikslinkite
+# užduotyje nurodytais metodais. Skaičiavimo scenarijuje turi būti
+# panaudotos skaičiavimų pabaigos sąlygos.
