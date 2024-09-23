@@ -1,8 +1,8 @@
 import sympy
 import numpy
 import math
-import math
 import matplotlib.pyplot as pyplot
+from scipy.optimize import fsolve
 
 
 def daugianarisF(x):
@@ -62,9 +62,26 @@ def pusiaukirtosMetodas(funkcija, saknys, tolerancija=1e-10, iteracijosMax=1000)
             else:
                 xTo = xMid
             xMid = (xFrom + xTo) / 2
-        patikslintosSaknys.append((xMid))
+        patikslintosSaknys.append(xMid)
         # print(f'Artinys ({xFrom}, {xTo})')
         # print(f'Patikslinta saknis: {xMid} Iteracijos: {format(iteration)}')
+    return patikslintosSaknys
+
+
+def kvaziNiutonoMetodas(funkcija, saknys, iteracijosMax=1000):
+    patikslintosSaknys = []
+    for saknuPora in saknys:
+        x0 = saknuPora[0]
+        x1 = saknuPora[1]
+        for i in range(iteracijosMax):
+            funkcijax0 = funkcija(x0)
+            funkcijax1 = funkcija(x1)
+            if funkcijax1 == funkcijax0:  # Patikrina, ar yra dalyba iš nulio
+                break
+            x2 = x1 - (funkcija(x1) * (x1 - x0) /
+                       float(funkcijax1 - funkcijax0))
+            x0, x1 = x1, x2
+        patikslintosSaknys.append(x2)
     return patikslintosSaknys
 
 
@@ -76,6 +93,7 @@ koeficientaiNeigX = [
 # Iverciai
 # Nustatykite daugianario 𝑓(𝑥)šaknų intervalą,
 # taikydami „grubų“ ir „tikslesnį“ įverčius.
+
 print("\n1.1")
 if koeficientai[-1] < 0:
     koeficientai = [x * (-1) for x in koeficientai]
@@ -171,10 +189,11 @@ pyplot.show()
 # 1.2
 # Naudodami skenavimo algoritmą su nekintančiu skenavimo žingsniu
 # raskite šaknų atskyrimo intervalus.
+
 print("\n1.2")
 zingsnis = 0.01
 daugianarioSaknys = skenavimas('f', galutinis, zingsnis)
-funkcijosSaknys = skenavimas('g', (-10, 10), zingsnis)
+funkcijosSaknys = skenavimas('g', (-5, 5), zingsnis)
 print(f'Daugianario saknys skenavimo algoritmu: {daugianarioSaknys}')
 print(f'Funkcijos saknys skenavimo algoritmu: {funkcijosSaknys}')
 
@@ -182,13 +201,36 @@ print(f'Funkcijos saknys skenavimo algoritmu: {funkcijosSaknys}')
 # Skenavimo metodu atskirtas daugianario ir funkcijos šaknis tikslinkite
 # užduotyje nurodytais metodais. Skaičiavimo scenarijuje turi būti
 # panaudotos skaičiavimų pabaigos sąlygos.
+
 print("\n1.3")
 # pusiaukirtos metodas
 pusiaukirtosF = pusiaukirtosMetodas(
     daugianarisF, daugianarioSaknys, 1e-15, 1000)
-print(f'Daugianario saknys skenavimo algoritmu: {pusiaukirtosF}')
+print(f'Daugianario saknys pusiaukirtos metodu: {pusiaukirtosF}')
 
 pusiaukirtosG = pusiaukirtosMetodas(funkcijaG, funkcijosSaknys, 1e-14, 1000)
-print(f'Funkcijos saknys skenavimo algoritmu: {pusiaukirtosG}')
+print(f'Funkcijos saknys pusiaukirtos metodu: {pusiaukirtosG}')
 
 # kvazi-niutono (kirstiniu) metodas
+kvaziNiutonoF = kvaziNiutonoMetodas(daugianarisF, daugianarioSaknys, 1000)
+print(f'Daugianario saknys Kvazi-Niutono metodu: {kvaziNiutonoF}')
+
+kvaziNiutonoG = kvaziNiutonoMetodas(funkcijaG, funkcijosSaknys, 1000)
+print(f'Funkcijos saknys Kvazi-Niutono metodu: {kvaziNiutonoG}')
+
+# 1.4
+# Gautas šaknų reikšmes patikrinkite naudodami išorinius išteklius
+# ir pateikite patikrinimo rezultatus
+
+print("\n1.4")
+# daugianario saknis naudojant numpy.roots()
+saknysNumpyF = numpy.roots(koeficientai)
+print(f"Daugianario saknys su numpy.roots(): {saknysNumpyF}")
+
+# funkcijos saknys naudojant scipy.optimize.fsolve()
+saknysFsolveG = []
+for saknuPora in funkcijosSaknys:
+    x_saknis = fsolve(funkcijaG, (saknuPora[0] + saknuPora[1]) / 2)[0]
+    saknysFsolveG.append(x_saknis)
+
+print(f'Funkcijos saknys su scipy.optimize.fsolve: {saknysFsolveG}')
