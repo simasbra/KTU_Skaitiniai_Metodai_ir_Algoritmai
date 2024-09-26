@@ -62,7 +62,7 @@ def skenavimas(funkcija, intervalas, zingsnis):
 
 
 # pusiaukirtos metodas
-def pusiaukirtos(funkcija, saknys, tolerancija=1e-10, iteracijosMax=100):
+def pusiaukirtos(funkcija, saknys, tolerancija, iteracijosMax=100):
     patikslintosSaknys = []
     iterations = []
     for saknuPora in saknys:
@@ -85,7 +85,7 @@ def pusiaukirtos(funkcija, saknys, tolerancija=1e-10, iteracijosMax=100):
 
 
 # kvazi niutono kirstiniu metodas
-def kvazi_niutono(funkcija, saknys, tolerancija=1e-10):
+def kvazi_niutono(funkcija, saknys, tolerancija):
     patikslintosSaknys = []
     iterations = []
     for saknuPora in saknys:
@@ -130,6 +130,15 @@ def sudaryti_grafika_TE(f, fpirmas, x, i, saknys):
     for saknuPora in saknys:
         pyplot.plot(saknuPora[0], saknuPora[1], "og")
     pyplot.show()
+
+
+# Funkcija skirtumams apskaiciuoti
+def apskaiciuoti_skirtuma(saknysH, saknysTE):
+    skirtumai = []
+    for i in range(min(len(saknysH), len(saknysTE))):
+        skirtumas = abs(saknysH[i] - saknysTE[i])
+        skirtumai.append(skirtumas)
+    return skirtumai
 
 
 koeficientai = [-0.45, 1.04, 1.42, -2.67, -0.97]
@@ -251,20 +260,22 @@ print(f'Funkcijos saknys skenavimo algoritmu: {funkcijosSaknys}')
 
 print("\n1.3")
 # pusiaukirtos metodas
-epsilonF = 1e-14
+epsilonF1 = 1e-8
 pusiaukirtosF, iterationsPusF = pusiaukirtos(
-    daugianaris_f, daugianarioSaknys, epsilonF, 100)
+    daugianaris_f, daugianarioSaknys, epsilonF1, 100)
 
-epsilonG = 1e-14
+epsilonG1 = 1e-8
 pusiaukirtosG, iterationsPusG = pusiaukirtos(
-    funkcija_g, funkcijosSaknys, epsilonG, 100)
+    funkcija_g, funkcijosSaknys, epsilonG1, 100)
 
 # kvazi-niutono (kirstiniu) metodas
+epsilonF2 = 1e-13
 kvaziNiutonoF, iterationsKvazF = kvazi_niutono(
-    daugianaris_f, daugianarioSaknys, 1e-10)
+    daugianaris_f, daugianarioSaknys, epsilonF2)
 
+epsilonG2 = 1e-13
 kvaziNiutonoG, iterationsKvazG = kvazi_niutono(
-    funkcija_g, funkcijosSaknys, 1e-10)
+    funkcija_g, funkcijosSaknys, epsilonG2)
 
 # Skaičiavimų rezultatus pateikite lentelėje, kurioje nurodykite šaknies
 # tikslinimui naudojamą metodą, pradinį artinį arba atskyrimo intervalą, gautą
@@ -286,14 +297,14 @@ for i in range(len(daugianarioSaknys)):
     print("| Pusiaukirtos".ljust(15) +
           f" | [{round(saknuPora[0], 3)} - {round(saknuPora[1], 3)}]".ljust(25) +
           f" | {round(pusiaukirtos, 10)}".ljust(20) +
-          f" | {round(daugianaris_f(pusiaukirtos), 13)}".ljust(20) +
-          f" | {epsilonF}".ljust(10) +
+          f" | {round(daugianaris_f(pusiaukirtos), 5)}".ljust(20) +
+          f" | {epsilonF1}".ljust(10) +
           f" | {iterationPus}".ljust(15) + " |")
     print("| Kvazi-Niutono".ljust(15) +
           f" | [{round(saknuPora[0], 3)} - {round(saknuPora[1], 3)}]".ljust(25) +
           f" | {round(kvaziNiutono, 10)}".ljust(20) +
-          f" | {round(daugianaris_f(kvaziNiutono), 13)}".ljust(20) +
-          f" | {epsilonF}".ljust(10) +
+          f" | {round(daugianaris_f(kvaziNiutono), 5)}".ljust(20) +
+          f" | {epsilonF2}".ljust(10) +
           f" | {iterationKvaz}".ljust(15) + " |")
 print('-' * 107)
 print("| g(x) = cos(2x) / (sin(x) + 1.5)) - (x / 5), kai -5 <= x <= 5" +
@@ -308,14 +319,14 @@ for i in range(len(funkcijosSaknys)):
     print("| Pusiaukirtos".ljust(15) +
           f" | [{round(saknuPora[0], 3)} - {round(saknuPora[1], 3)}]".ljust(25) +
           f" | {round(pusiaukirtos, 10)}".ljust(20) +
-          f" | {round(daugianaris_f(pusiaukirtos), 13)}".ljust(20) +
-          f" | {epsilonG}".ljust(10) +
+          f" | {round(funkcija_g(pusiaukirtos), 5)}".ljust(20) +
+          f" | {epsilonG1}".ljust(10) +
           f" | {iterationPus}".ljust(15) + " |")
     print("| Kvazi-Niutono".ljust(15) +
           f" | [{round(saknuPora[0], 3)} - {round(saknuPora[1], 3)}]".ljust(25) +
           f" | {round(kvaziNiutono, 10)}".ljust(20) +
-          f" | {round(daugianaris_f(kvaziNiutono), 13)}".ljust(20) +
-          f" | {epsilonG}".ljust(10) +
+          f" | {round(funkcija_g(kvaziNiutono), 5)}".ljust(20) +
+          f" | {epsilonG2}".ljust(10) +
           f" | {iterationKvaz}".ljust(15) + " |")
 print('-' * 107)
 
@@ -371,6 +382,7 @@ saknysH, iteracijosH = skenavimas(funkcija_h, (1, 6), 0.01)
 # h(x) funkcijos saknys kvazi niutono kirstiniu metodu
 kvaziNiutonoH = kvazi_niutono(funkcija_h, saknysH, 1e-10)
 saknuSkaicius = [(0, 0)]
+skirtumaiPerIteracija = [[] for _ in range(len(kvaziNiutonoH[0]))]
 # iki kokios eiles naudoti TE narius
 N = 100
 for i in range(1, N + 1):
@@ -382,22 +394,41 @@ for i in range(1, N + 1):
         sympy.lambdify(x, fpirmas, "numpy"), (1, 6), 0.01)
     kvaziNiutonoTE = kvazi_niutono(
         sympy.lambdify(x, fpirmas, "numpy"), saknysTE, 1e-10)
-    saknuSkaicius.append((1, len(kvaziNiutonoH)))
+    saknuSkaicius.append((i, len(kvaziNiutonoH)))
+    skirtumai = apskaiciuoti_skirtuma(kvaziNiutonoH[0], kvaziNiutonoTE[0])
+    for j in range(len(skirtumai)):
+        skirtumaiPerIteracija[j].append(skirtumai[j])
     if i >= 3 and i <= 5:
         print(f"Te nariu: {i}, funkcija {fpirmas}")
         sudaryti_grafika_TE(f, fpirmas, x, i, kvaziNiutonoH)
     if ar_saknys_tinka(kvaziNiutonoH, kvaziNiutonoTE):
-        print(f"visos saknu reiksmes intervale skiriasi maziau nei {
+        print(f"\nvisos saknu reiksmes intervale skiriasi maziau nei {
               1e-4}. Is viso yra {i} nariu")
         sudaryti_grafika_TE(f, fpirmas, x, i, kvaziNiutonoH)
         break
 
 # daugianaris simboliais
 a = sympy.Poly(fpirmas, x)
-print("\n")
-print(a)
+print(f"\ndaugianaris simboliais {a}")
 # visi koeficientai nuo vyriausio
 kf = numpy.array(a.all_coeffs())
 saknys = numpy.roots(kf)
-print(saknys)
-print(saknys)
+print(f"\nvisi koeficientai nuo vyriausio {saknys}")
+
+# Grafikas, rodantis saknu skaiciu priklausomai nuo TE nariu skaiciaus
+pyplot.figure(figsize=(10, 6))
+pyplot.plot([x[0] for x in saknuSkaicius], [x[1] for x in saknuSkaicius])
+pyplot.title('Šaknų skaičius priklausomai nuo TE narių skaičiaus')
+pyplot.xlabel('TE narių skaičius')
+pyplot.ylabel('Šaknų skaičius')
+pyplot.show()
+
+# atskiri grafikai kiekvienai sakniai
+for idx, skirtumai in enumerate(skirtumaiPerIteracija):
+    pyplot.figure(figsize=(10, 6))
+    pyplot.plot(range(1, len(skirtumai) + 1), skirtumai, marker='o')
+    pyplot.title(f'Šaknies {idx + 1} tikslumo skirtumai tarp h(x) ir TE')
+    pyplot.xlabel('TE narių skaičius')
+    pyplot.ylabel('Skirtumas tarp h(x) ir TE šaknies')
+    pyplot.grid(True)
+    pyplot.show()
