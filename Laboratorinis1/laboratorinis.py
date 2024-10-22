@@ -423,7 +423,7 @@ pyplot.xlabel('TE narių skaičius')
 pyplot.ylabel('Šaknų skaičius')
 pyplot.show()
 
-# atskiri grafikai kiekvienai sakniai
+# atskiri skirtumo grafikai kiekvienai sakniai
 for idx, skirtumai in enumerate(skirtumaiPerIteracija):
     pyplot.figure(figsize=(10, 6))
     pyplot.plot(range(1, len(skirtumai) + 1), skirtumai, marker='o')
