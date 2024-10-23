@@ -1,6 +1,7 @@
 import numpy
 import matplotlib.pyplot as pyplot
 from atspindysSuQR import atspindys_su_qr
+from niutonoMetodas import LF, niutono_sprendiniai, niutono_spalvos, filtruoti_sprendinius
 
 # 1 Tiesinių lygčių sistemų sprendimas
 
@@ -66,13 +67,6 @@ atspindys_su_qr(A16, b16)
 # (𝑥1 / 2 )^3 + 25 * 𝑥2^2 − 50 = 0
 # Metodas: Niutono
 
-
-def LF(x):
-    s = numpy.array([x[0]**2 + (x[1] + numpy.cos(x[0]))**2 - 40,
-                     (x[0]/2)**3 + 25*x[1]**2 - 50])
-    return s
-
-
 # 3a. Skirtinguose grafikuose pavaizduokite paviršius 𝑍1(𝑥1, 𝑥2) ir 𝑍2(𝑥1, 𝑥2).
 
 x1 = numpy.linspace(-5, 5, 200)
@@ -109,37 +103,95 @@ pyplot.show()
 # 3b. Užduotyje pateiktą netiesinių lygčių sistemą išspręskite grafiniu būdu.
 
 fig1 = pyplot.figure(1, figsize=pyplot.figaspect(0.45))
-ax1 = fig1.add_subplot(1, 2, 1, projection='3d')
-ax1.set_xlabel('x')
-ax1.set_ylabel('y')
-ax1.set_zlabel('z')
+ax1 = fig1.add_subplot(1, 2, 1, projection="3d")
+ax1.set_xlabel("x")
+ax1.set_ylabel("y")
+ax1.set_zlabel("z")
 
 ax2 = fig1.add_subplot(1, 2, 2)
-ax2.set_xlabel('x')
-ax2.set_ylabel('y')
+ax2.set_xlabel("x")
+ax2.set_ylabel("y")
 ax2.set_title("Grafinis netiesinių TLS sprendimas")
 
 pyplot.draw()
 
 x1 = numpy.linspace(-8, 8, 50)
 x2 = numpy.linspace(-8, 8, 50)
-Z = numpy.zeros(shape=(len(x1), len(x2), 2))
+nuliai = numpy.zeros(shape=(len(x1), len(x2), 2))
 
 X1, X2 = numpy.meshgrid(x1, x2)
 for i in range(0, len(x1)):
     for j in range(0, len(x2)):
-        Z[i, j, :] = LF([X1[i][j], X2[i][j]]).transpose()
+        nuliai[i, j, :] = LF([X1[i][j], X2[i][j]]).transpose()
 
-surf1 = ax1.plot_surface(X1, X2, Z[:, :, 0], color='blue', alpha=0.4,
+surf1 = ax1.plot_surface(X1, X2, nuliai[:, :, 0], color="blue", alpha=0.4,
                          linewidth=0.1, antialiased=True)
-CS11 = ax1.contour(X1, X2, Z[:, :, 0], [0], colors='b')
-surf2 = ax1.plot_surface(X1, X2, Z[:, :, 1], color='red', alpha=0.4,
+CS11 = ax1.contour(X1, X2, nuliai[:, :, 0], [0], colors="b")
+surf2 = ax1.plot_surface(X1, X2, nuliai[:, :, 1], color="red", alpha=0.4,
                          linewidth=0.1, antialiased=True)
-CS12 = ax1.contour(X1, X2, Z[:, :, 1], [0], colors='r')
+CS12 = ax1.contour(X1, X2, nuliai[:, :, 1], [0], colors="r")
 
-CS1 = ax2.contour(X1, X2, Z[:, :, 0], [0], colors='b')
-CS2 = ax2.contour(X1, X2, Z[:, :, 1], [0], colors='r')
-
+CS1 = ax2.contour(X1, X2, nuliai[:, :, 0], [0], colors="b")
+CS2 = ax2.contour(X1, X2, nuliai[:, :, 1], [0], colors="r")
 
 pyplot.grid()
 pyplot.show()
+
+# c. Nagrinėjamoje srityje sudarykite stačiakampį tinklelį (𝑥1, 𝑥2 poras).
+
+x1 = [-8, 8]
+x2 = [-8, 8]
+h = 0.5
+
+reiksmesX = numpy.arange(x1[0], x1[1], h)
+reiksmesY = numpy.arange(x2[0], x2[1], h)
+gridX, gridY = numpy.meshgrid(reiksmesX, reiksmesY)
+
+# Parametrai
+epsilon = 1e-04
+maxIteracijos = 1000
+pradineSpalva = "#000000"  # Spalva singuliarioms funkcijoms
+
+# Skirtingos spalvos skirtingiems sprendiniams
+spalvos = ["#82FA84", "#55B5FF", "#FFD86D", "#FF6C6C"]
+
+# 1. Sugeneruoti visus sprendinius
+sprendiniai = niutono_sprendiniai(gridX, gridY)
+
+# 2. Isfiltruoti unikalias reiksmes (atskirus lygciu sistemos sprendinius)
+filtSprendiniai = filtruoti_sprendinius(sprendiniai, epsilon)
+
+reiksmesX = [sprendinys[2] for sprendinys in filtSprendiniai]
+reiksmesY = [sprendinys[3] for sprendinys in filtSprendiniai]
+
+# 3. Priskirti spalvas kiekvienam sprendiniui
+priskirtosSpalvos = niutono_spalvos(
+        sprendiniai, filtSprendiniai, spalvos, epsilon, pradineSpalva)
+
+# 4. Paruosti reiksmes atvaizdavimui
+plotReiksmesX = [sprendinys[0] for sprendinys in sprendiniai]
+plotReiksmesY = [sprendinys[1] for sprendinys in sprendiniai]
+
+# 5. Sprendiniu atvaizdavimas
+pyplot.figure()
+contourData1 = CS1.allsegs[0]
+contourData2 = CS2.allsegs[0]
+
+for segmentas in contourData1:
+    pyplot.plot(segmentas[:, 0], segmentas[:, 1], color='k')
+
+for segmentas in contourData2:
+    pyplot.plot(segmentas[:, 0], segmentas[:, 1], color='k')
+
+pyplot.scatter(plotReiksmesX, plotReiksmesY, color=priskirtosSpalvos, s=50)
+plotSpalvos = (spalvos * (len(reiksmesX) // len(spalvos) + 1))[:len(reiksmesX)]
+pyplot.scatter(reiksmesX, reiksmesY, color=plotSpalvos, s=200, marker='*',
+               edgecolors='k', zorder=3)
+
+pyplot.xlabel("x1")
+pyplot.ylabel("x2")
+pyplot.ylim(-8, 8)
+pyplot.xlim(-8, 8)
+pyplot.title("Pradiniu artiniu tinklelis")
+pyplot.show()
+
