@@ -26,7 +26,7 @@ def atspindys_su_qr(A, b):
 
     # atgalinis etapas:
     x = numpy.zeros(shape=(n, nb))
-    eps = 1e-15
+    eps = 1e-10
 
     if abs(A1[n - 1, n]) < eps and abs(A1[n - 1, n - 1]) < eps:
         x[n - 1] = 1
