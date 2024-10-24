@@ -38,7 +38,7 @@ def atspindys_su_qr(A, b):
     else:
         x[n - 1] = A1[n - 1, n] / A1[n - 1, n - 1]
 
-    # range pradeda n-1 ir baigia 0 (trecias parametras yra zingsnis)
+    # ne n - 1, kadangi pirmas sprendinys buvo isprestas virsuj
     for i in range(n - 2, -1, -1):
         r = A1[i, n] - A1[i, i+1:n] * x[i+1:n]
         if A1[i, i] == 0 and abs(r) < eps:
